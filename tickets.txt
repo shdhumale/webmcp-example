@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Server is down",
+    "description": "Production server is not responding to requests.",
+    "status": "new"
+  },
+  {
+    "id": 2,
+    "name": "Login page broken",
+    "description": "Users cannot log into the portal - getting 403 error.",
+    "status": "assigned"
+  },
+  {
+    "id": 3,
+    "name": "Password reset not working",
+    "description": "Reset email is not being sent to users.",
+    "status": "done"
+  },
+  {
+    "id": 4,
+    "name": "DB connection timeout",
+    "description": "Database connections timing out after 30 seconds.",
+    "status": "escalate"
+  },
+  {
+    "id": 5,
+    "name": "Siddhu",
+    "description": "siddhu description",
+    "status": "assigned"
+  }
+]

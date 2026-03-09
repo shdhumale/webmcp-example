@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Manager</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* ── Top Nav ── */
+    nav {
+      background: #1e3a5f;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+    }
+
+    .nav-brand {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+      padding: 16px 0;
+      margin-right: 32px;
+      flex-shrink: 0;
+    }
+
+    .nav-brand span {
+      color: #64b5f6;
+    }
+
+    nav a {
+      color: #b0c4de;
+      text-decoration: none;
+      padding: 18px 20px;
+      font-size: .92rem;
+      font-weight: 500;
+      transition: background .2s, color .2s;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+
+    nav a:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, .07);
+    }
+
+    nav a.active {
+      color: #64b5f6;
+      border-bottom: 3px solid #64b5f6;
+    }
+
+    /* ── Main Content ── */
+    main {
+      max-width: 1100px;
+      margin: 36px auto;
+      padding: 0 20px;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* ── Page Titles ── */
+    h1 {
+      font-size: 1.6rem;
+      color: #1e3a5f;
+      margin-bottom: 24px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #d0dce8;
+    }
+
+    /* ── Cards / Panels ── */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 28px 32px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+
+    thead {
+      background: #1e3a5f;
+      color: #fff;
+    }
+
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      letter-spacing: .4px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #e8edf3;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: #f5f8fc;
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      vertical-align: top;
+    }
+
+    td.desc {
+      max-width: 340px;
+      color: #555;
+      font-size: .85rem;
+    }
+
+    /* ── Status Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: .78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .badge-new {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .badge-assigned {
+      background: #fff8e1;
+      color: #e65100;
+    }
+
+    .badge-done {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .badge-escalate {
+      background: #fce4ec;
+      color: #b71c1c;
+    }
+
+    /* ── Empty State ── */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #888;
+      font-size: .95rem;
+    }
+
+    /* ── Form ── */
+    form {
+      max-width: 560px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #c8d4e0;
+      border-radius: 6px;
+      font-size: .9rem;
+      font-family: inherit;
+      color: #333;
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #1e3a5f;
+      box-shadow: 0 0 0 3px rgba(30, 58, 95, .1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .id-display {
+      padding: 10px 14px;
+      border: 1px dashed #c8d4e0;
+      border-radius: 6px;
+      background: #f8fafc;
+      color: #888;
+      font-size: .9rem;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background .2s, transform .1s;
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary {
+      background: #1e3a5f;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #162d4a;
+    }
+
+    .btn-secondary {
+      background: #e0e7ef;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #ccd8e6;
+    }
+
+    .btn-warning {
+      background: #e65100;
+      color: #fff;
+    }
+
+    .btn-warning:hover {
+      background: #bf360c;
+    }
+
+    .btn-sm {
+      padding: 5px 14px;
+      font-size: .8rem;
+      border-radius: 4px;
+    }
+
+    /* ── Search bar ── */
+    .search-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .search-row input {
+      flex: 1;
+    }
+
+    /* ── Alert messages ── */
+    .alert {
+      padding: 12px 18px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: .88rem;
+      font-weight: 500;
+    }
+
+    .alert-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+
+    .alert-error {
+      background: #fce4ec;
+      color: #b71c1c;
+      border: 1px solid #ef9a9a;
+    }
+
+    /* ── Stats row on dashboard ── */
+    .stats {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-box {
+      flex: 1;
+      min-width: 120px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, .1);
+      text-align: center;
+    }
+
+    .stat-box .num {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1e3a5f;
+      line-height: 1;
+    }
+
+    .stat-box .lbl {
+      font-size: .75rem;
+      color: #888;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="nav-brand">🎫 Ticket <span>Manager</span></div>
+    <a id="nav-dashboard" class="active" onclick="showScreen('dashboard')">Dashboard</a>
+    <a id="nav-create" onclick="showScreen('create')">New Ticket</a>
+    <a id="nav-search" onclick="showScreen('search')">Search</a>
+    <a id="nav-edit" style="display:none" onclick="showScreen('edit')">Edit Ticket</a>
+  </nav>
+
+  <main>
+
+    <!-- ════════════════ DASHBOARD ════════════════ -->
+    <section id="screen-dashboard" class="screen active">
+      <h1>Dashboard — All Tickets</h1>
+      <div id="stats" class="stats"></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table id="dashboard-table">
+            <thead>
+              <tr>
+                <th>#ID</th>
+                <th>Ticket Name</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-body">
+              <tr>
+                <td colspan="5" class="empty">Loading…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ CREATE ════════════════ -->
+    <section id="screen-create" class="screen">
+      <h1>Create New Ticket</h1>
+      <div class="card">
+        <div id="create-alert"></div>
+        <form id="create-form" onsubmit="submitTicket(event)">
+
+          <div class="form-group">
+            <label>Ticket ID</label>
+            <div class="id-display" id="next-id-display">Auto-generated</div>
+          </div>
+
+          <div class="form-group">
+            <label for="ticket-name">Ticket Name <span style="color:red">*</span></label>
+            <input type="text" id="ticket-name" placeholder="Short summary of the issue" required />
+          </div>
+
+          <div class="form-group">
+            <label for="ticket-desc">Description <span style="color:red">*</span></label>
+            <textarea id="ticket-desc" placeholder="Describe the issue in detail…" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="ticket-status">Status <span style="color:red">*</span></label>
+            <select id="ticket-status" required>
+              <option value="">— Select status —</option>
+              <option value="new">New</option>
+              <option value="assigned">Assigned</option>
+              <option value="done">Done</option>
+              <option value="escalate">Escalate</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn btn-primary">Create Ticket</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ════════════════ EDIT ════════════════ -->
+    <section id="screen-edit" class="screen">
+      <h1 id="edit-heading">Edit Ticket</h1>
+      <div class="card">
+        <div id="edit-alert"></div>
+        <form id="edit-form" onsubmit="submitEdit(event)">
+
+          <div class="form-group">
+            <label>Ticket ID</label>
+            <div class="id-display" id="edit-id-display"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-name">Ticket Name <span style="color:red">*</span></label>
+            <input type="text" id="edit-name" placeholder="Short summary of the issue" required />
+          </div>
+
+          <div class="form-group">
+            <label for="edit-desc">Description <span style="color:red">*</span></label>
+            <textarea id="edit-desc" placeholder="Describe the issue in detail…" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-status">Status <span style="color:red">*</span></label>
+            <select id="edit-status" required>
+              <option value="new">New</option>
+              <option value="assigned">Assigned</option>
+              <option value="done">Done</option>
+              <option value="escalate">Escalate</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ════════════════ SEARCH ════════════════ -->
+    <section id="screen-search" class="screen">
+      <h1>Search Tickets</h1>
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="Search by name, description, status or ID…"
+          oninput="doSearch()" />
+        <button class="btn btn-primary" onclick="doSearch()">Search</button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#ID</th>
+                <th>Ticket Name</th>
+                <th>Description</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="search-body">
+              <tr>
+                <td colspan="4" class="empty">Type above to search tickets.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ── Routing ──────────────────────────────────────────────
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+      document.getElementById('screen-' + name).classList.add('active');
+      const navEl = document.getElementById('nav-' + name);
+      if (navEl) navEl.classList.add('active');
+
+      if (name === 'dashboard') loadDashboard();
+      if (name === 'create') loadNextId();
+      if (name === 'search') {
+        document.getElementById('search-input').value = '';
+        document.getElementById('search-body').innerHTML =
+          '<tr><td colspan="4" class="empty">Type above to search tickets.</td></tr>';
+      }
+      // Show/hide the Edit tab in nav depending on screen
+      document.getElementById('nav-edit').style.display = (name === 'edit') ? 'block' : 'none';
+    }
+
+    // ── Status badge helper ───────────────────────────────────
+    function badge(status) {
+      const map = { new: 'new', assigned: 'assigned', done: 'done', escalate: 'escalate' };
+      const cls = map[status] || 'new';
+      const label = { new: 'New', assigned: 'Assigned', done: 'Done', escalate: 'Escalate' };
+      return `<span class="badge badge-${cls}">${label[status] || status}</span>`;
+    }
+
+    // ── Render tickets into a <tbody> ─────────────────────────
+    // showEdit: if true, adds an Edit button column (dashboard only)
+    function renderRows(tickets, tbodyId, showEdit) {
+      const tbody = document.getElementById(tbodyId);
+      const cols = showEdit ? 5 : 4;
+      if (!tickets.length) {
+        tbody.innerHTML = `<tr><td colspan="${cols}" class="empty">No tickets found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = tickets.map(t => `
+      <tr>
+        <td><strong>${t.id}</strong></td>
+        <td>${escHtml(t.name)}</td>
+        <td class="desc">${escHtml(t.description)}</td>
+        <td>${badge(t.status)}</td>
+        ${showEdit ? `<td><button class="btn btn-warning btn-sm" onclick="openEditScreen(${t.id})">✏ Edit</button></td>` : ''}
+      </tr>`).join('');
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Dashboard ─────────────────────────────────────────────
+    async function loadDashboard() {
+      try {
+        const res = await fetch('/api/tickets');
+        const tickets = await res.json();
+        renderRows(tickets, 'dashboard-body', true);  // true = show Edit column
+        renderStats(tickets);
+      } catch {
+        document.getElementById('dashboard-body').innerHTML =
+          '<tr><td colspan="5" class="empty">Could not load tickets.</td></tr>';
+      }
+    }
+
+    function renderStats(tickets) {
+      const counts = { new: 0, assigned: 0, done: 0, escalate: 0 };
+      tickets.forEach(t => { if (counts[t.status] !== undefined) counts[t.status]++; });
+      document.getElementById('stats').innerHTML = `
+      <div class="stat-box"><div class="num">${tickets.length}</div><div class="lbl">Total</div></div>
+      <div class="stat-box"><div class="num" style="color:#1565c0">${counts.new}</div><div class="lbl">New</div></div>
+      <div class="stat-box"><div class="num" style="color:#e65100">${counts.assigned}</div><div class="lbl">Assigned</div></div>
+      <div class="stat-box"><div class="num" style="color:#2e7d32">${counts.done}</div><div class="lbl">Done</div></div>
+      <div class="stat-box"><div class="num" style="color:#b71c1c">${counts.escalate}</div><div class="lbl">Escalate</div></div>
+    `;
+    }
+
+    // ── Create Ticket ─────────────────────────────────────────
+    async function loadNextId() {
+      try {
+        const res = await fetch('/api/tickets');
+        const tickets = await res.json();
+        const nextId = tickets.length > 0 ? Math.max(...tickets.map(t => t.id)) + 1 : 1;
+        document.getElementById('next-id-display').textContent = `#${nextId} (auto-assigned)`;
+      } catch {
+        document.getElementById('next-id-display').textContent = 'Auto-generated';
+      }
+    }
+
+    async function submitTicket(e) {
+      e.preventDefault();
+      const alertEl = document.getElementById('create-alert');
+      alertEl.innerHTML = '';
+
+      const name = document.getElementById('ticket-name').value.trim();
+      const description = document.getElementById('ticket-desc').value.trim();
+      const status = document.getElementById('ticket-status').value;
+
+      try {
+        const res = await fetch('/api/tickets', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, description, status })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alertEl.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+          return;
+        }
+        alertEl.innerHTML = `<div class="alert alert-success">✅ Ticket #${data.id} created successfully!</div>`;
+        document.getElementById('create-form').reset();
+        loadNextId();
+        setTimeout(() => { alertEl.innerHTML = ''; }, 4000);
+      } catch {
+        alertEl.innerHTML = `<div class="alert alert-error">Server error — please try again.</div>`;
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('create-form').reset();
+      document.getElementById('create-alert').innerHTML = '';
+    }
+
+    // ── Search ────────────────────────────────────────────────
+    let searchTimer;
+    async function doSearch() {
+      clearTimeout(searchTimer);
+      const q = document.getElementById('search-input').value.trim();
+      if (!q) {
+        document.getElementById('search-body').innerHTML =
+          '<tr><td colspan="4" class="empty">Type above to search tickets.</td></tr>';
+        return;
+      }
+      searchTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/tickets/search?q=${encodeURIComponent(q)}`);
+          const tickets = await res.json();
+          renderRows(tickets, 'search-body');
+        } catch {
+          document.getElementById('search-body').innerHTML =
+            '<tr><td colspan="4" class="empty">Search failed — please try again.</td></tr>';
+        }
+      }, 250);
+    }
+
+    // ── Edit Ticket ───────────────────────────────────────────
+    let _editingId = null;
+
+    async function openEditScreen(id) {
+      try {
+        const res = await fetch('/api/tickets');
+        const tickets = await res.json();
+        const ticket = tickets.find(t => t.id === id);
+        if (!ticket) { alert('Ticket not found.'); return; }
+
+        _editingId = id;
+        document.getElementById('edit-id-display').textContent = `#${ticket.id}`;
+        document.getElementById('edit-heading').textContent = `Edit Ticket #${ticket.id}`;
+        document.getElementById('edit-name').value = ticket.name;
+        document.getElementById('edit-desc').value = ticket.description;
+        document.getElementById('edit-status').value = ticket.status;
+        document.getElementById('edit-alert').innerHTML = '';
+
+        showScreen('edit');
+      } catch {
+        alert('Could not load ticket data. Please try again.');
+      }
+    }
+
+    async function submitEdit(e) {
+      e.preventDefault();
+      const alertEl = document.getElementById('edit-alert');
+      alertEl.innerHTML = '';
+
+      const name = document.getElementById('edit-name').value.trim();
+      const description = document.getElementById('edit-desc').value.trim();
+      const status = document.getElementById('edit-status').value;
+
+      try {
+        const res = await fetch(`/api/tickets/${_editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, description, status })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alertEl.innerHTML = `<div class="alert alert-error">${data.error}</div>`;
+          return;
+        }
+        alertEl.innerHTML = `<div class="alert alert-success">✅ Ticket #${data.id} updated successfully!</div>`;
+        setTimeout(() => { showScreen('dashboard'); }, 1500);
+      } catch {
+        alertEl.innerHTML = `<div class="alert alert-error">Server error — please try again.</div>`;
+      }
+    }
+
+    function cancelEdit() {
+      _editingId = null;
+      showScreen('dashboard');
+    }
+
+    // ── Init ──────────────────────────────────────────────────
+    loadDashboard();
+  </script>
+</body>
+
+</html>
