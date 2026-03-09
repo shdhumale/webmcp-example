@@ -347,6 +347,46 @@
       text-transform: uppercase;
       letter-spacing: .5px;
     }
+
+    /* ── WebMCP status bottom panel ── */
+    #webmcp-panel {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      background: #1e3a5f;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      font-size: 0.75rem;
+      z-index: 9999;
+      opacity: 0.9;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .wm-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wm-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+    }
+
+    .wm-ok {
+      background: #4caf50;
+      box-shadow: 0 0 4px #4caf50;
+    }
+
+    .wm-off {
+      background: #f44336;
+    }
   </style>
 </head>
 
@@ -359,6 +399,17 @@
     <a id="nav-search" onclick="showScreen('search')">Search</a>
     <a id="nav-edit" style="display:none" onclick="showScreen('edit')">Edit Ticket</a>
   </nav>
+
+  <div id="webmcp-panel">
+    <div class="wm-line">
+      <div id="wm-native-dot" class="wm-dot"></div>
+      <span id="wm-native-text">navigator.modelContext checking...</span>
+    </div>
+    <div class="wm-line">
+      <div id="wm-mcpb-dot" class="wm-dot"></div>
+      <span id="wm-mcpb-text">MCP-B extension checking...</span>
+    </div>
+  </div>
 
   <main>
 
@@ -518,6 +569,11 @@
       }
       // Show/hide the Edit tab in nav depending on screen
       document.getElementById('nav-edit').style.display = (name === 'edit') ? 'block' : 'none';
+
+      // Refresh WebMCP tools for the new screen
+      if (typeof window.updateWebMcpContext === 'function') {
+        window.updateWebMcpContext(name);
+      }
     }
 
     // ── Status badge helper ───────────────────────────────────
@@ -705,6 +761,8 @@
     // ── Init ──────────────────────────────────────────────────
     loadDashboard();
   </script>
+  <!-- Load WebMCP tools -->
+  <script src="webmcp.bundle.js"></script>
 </body>
 
 </html>

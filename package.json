@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/shdhumale/webmcp-example#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "@mcp-b/transports": "^2.1.0",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "esbuild": "^0.27.3",
+    "express": "^5.2.1",
+    "zod": "^4.3.6"
   }
 }
